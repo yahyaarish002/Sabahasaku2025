@@ -1,0 +1,379 @@
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Volume2, Award, BarChart3, Globe, Heart, Play } from 'lucide-react';
+
+const SabahanLanguageApp = () => {
+  const [currentLanguage, setCurrentLanguage] = useState('bisaya');
+  const [activeTab, setActiveTab] = useState('home');
+  const [currentLesson, setCurrentLesson] = useState(null);
+  const [score, setScore] = useState(0);
+  const [completedLessons, setCompletedLessons] = useState([]);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [showQuizResults, setShowQuizResults] = useState(false);
+
+  const languages = [
+    { id: 'bisaya', name: 'Bisaya', status: 'active', flag: '🟢' },
+    { id: 'kadazandusun', name: 'Kadazandusun', status: 'coming', flag: '🟡' },
+    { id: 'bajau', name: 'Bajau Samah', status: 'coming', flag: '🟡' }
+  ];
+
+  const lessons = {
+    bisaya: [
+      {
+        id: 1,
+        title: 'Basic Greetings',
+        category: 'vocabulary',
+        words: [
+          { bisaya: 'Mohon Tuhan', english: 'Thank God', pronunciation: 'mo-hon too-han' },
+          { bisaya: 'Kumusta', english: 'Hello/How are you', pronunciation: 'koo-mus-ta' },
+          { bisaya: 'Marayau', english: 'Good', pronunciation: 'ma-ra-yau' },
+          { bisaya: 'Salamat', english: 'Thank you', pronunciation: 'sa-la-mat' },
+          { bisaya: 'Paagi', english: 'Goodbye', pronunciation: 'pa-a-gi' }
+        ]
+      },
+      {
+        id: 2,
+        title: 'Numbers 1-10',
+        category: 'vocabulary',
+        words: [
+          { bisaya: 'Isa', english: 'One', pronunciation: 'i-sa' },
+          { bisaya: 'Duwa', english: 'Two', pronunciation: 'du-wa' },
+          { bisaya: 'Tolu', english: 'Three', pronunciation: 'to-lu' },
+          { bisaya: 'Ompat', english: 'Four', pronunciation: 'om-pat' },
+          { bisaya: 'Lima', english: 'Five', pronunciation: 'li-ma' }
+        ]
+      },
+      {
+        id: 3,
+        title: 'Family Members',
+        category: 'vocabulary',
+        words: [
+          { bisaya: 'Ama', english: 'Father', pronunciation: 'a-ma' },
+          { bisaya: 'Ina', english: 'Mother', pronunciation: 'i-na' },
+          { bisaya: 'Ading', english: 'Younger sibling', pronunciation: 'a-ding' },
+          { bisaya: 'Kaka', english: 'Older sibling', pronunciation: 'ka-ka' },
+          { bisaya: 'Laki', english: 'Husband', pronunciation: 'la-ki' }
+        ]
+      }
+    ]
+  };
+
+  const culturalFacts = [
+    {
+      title: 'Bisaya People',
+      content: 'The Bisaya people are indigenous to Sabah, primarily found in the Beaufort and Kuala Penyu districts. They are known for their agricultural skills and traditional brass-making crafts.'
+    },
+    {
+      title: 'Traditional Music',
+      content: 'Bisaya culture features unique musical instruments and songs that tell stories of daily life, love, and connection to the land.'
+    },
+    {
+      title: 'Language Status',
+      content: 'Bisaya is one of the indigenous languages of Sabah that needs preservation efforts as younger generations increasingly speak Malay and English.'
+    }
+  ];
+
+  const handleLessonComplete = (lessonId) => {
+    if (!completedLessons.includes(lessonId)) {
+      setCompletedLessons([...completedLessons, lessonId]);
+      setScore(score + 10);
+    }
+  };
+
+  const handleQuizSubmit = () => {
+    setShowQuizResults(true);
+    const correct = Object.values(quizAnswers).filter(a => a.correct).length;
+    setScore(score + (correct * 5));
+  };
+
+  const playPronunciation = (word) => {
+    // Placeholder for audio - will be replaced with actual recordings
+    alert(`🔊 Playing pronunciation: "${word.pronunciation}"\n\n(Audio feature will include native speaker recordings)`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-emerald-600 text-white p-4 shadow-lg">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Globe className="w-8 h-8" />
+            <div>
+              <h1 className="text-2xl font-bold">BahasaKu Sabah</h1>
+              <p className="text-sm text-emerald-100">Learn Sabahan Languages</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-emerald-700 px-3 py-2 rounded-lg">
+              <Award className="w-5 h-5" />
+              <span className="font-bold">{score} pts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Language Selector */}
+      <div className="bg-white shadow-md p-4">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-sm text-gray-600 mb-2">Choose your language:</p>
+          <div className="flex gap-3 flex-wrap">
+            {languages.map(lang => (
+              <button
+                key={lang.id}
+                onClick={() => lang.status === 'active' && setCurrentLanguage(lang.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  currentLanguage === lang.id
+                    ? 'bg-emerald-600 text-white'
+                    : lang.status === 'active'
+                    ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                    : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                }`}
+                disabled={lang.status !== 'active'}
+              >
+                {lang.flag} {lang.name}
+                {lang.status === 'coming' && <span className="text-xs ml-2">(Coming Soon)</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="max-w-6xl mx-auto mt-6 px-4">
+        <div className="flex gap-2 border-b-2 border-gray-200">
+          {[
+            { id: 'home', label: 'Home', icon: Globe },
+            { id: 'lessons', label: 'Lessons', icon: BookOpen },
+            { id: 'quiz', label: 'Quiz', icon: Play },
+            { id: 'culture', label: 'Culture', icon: Heart },
+            { id: 'progress', label: 'Progress', icon: BarChart3 }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-3 font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'text-emerald-600 border-b-4 border-emerald-600'
+                  : 'text-gray-600 hover:text-emerald-600'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto p-4 mt-4">
+        {/* Home Tab */}
+        {activeTab === 'home' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Welcome to BahasaKu Sabah! 🌟</h2>
+              <p className="text-gray-600 mb-4">
+                Start your journey learning the beautiful languages of Sabah. Begin with Bisaya and reconnect with your heritage!
+              </p>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="bg-emerald-50 p-4 rounded-lg">
+                  <BookOpen className="w-8 h-8 text-emerald-600 mb-2" />
+                  <h3 className="font-bold text-gray-800">Learn Vocabulary</h3>
+                  <p className="text-sm text-gray-600">Master essential words and phrases</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <Volume2 className="w-8 h-8 text-blue-600 mb-2" />
+                  <h3 className="font-bold text-gray-800">Pronunciation</h3>
+                  <p className="text-sm text-gray-600">Hear native speaker audio</p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <Heart className="w-8 h-8 text-purple-600 mb-2" />
+                  <h3 className="font-bold text-gray-800">Discover Culture</h3>
+                  <p className="text-sm text-gray-600">Learn about traditions and heritage</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-xl shadow-lg p-6 text-white">
+              <h3 className="text-xl font-bold mb-2">Your Learning Path</h3>
+              <p className="mb-4">You've completed {completedLessons.length} lessons in Bisaya!</p>
+              <button
+                onClick={() => setActiveTab('lessons')}
+                className="bg-white text-emerald-600 px-6 py-2 rounded-lg font-medium hover:bg-emerald-50 transition-all"
+              >
+                Continue Learning →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Lessons Tab */}
+        {activeTab === 'lessons' && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800">Bisaya Lessons</h2>
+            {lessons[currentLanguage]?.map(lesson => (
+              <div key={lesson.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-emerald-500 text-white p-4 flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-bold">{lesson.title}</h3>
+                    <p className="text-sm text-emerald-100">Lesson {lesson.id}</p>
+                  </div>
+                  {completedLessons.includes(lesson.id) && (
+                    <Award className="w-6 h-6" />
+                  )}
+                </div>
+                <div className="p-6">
+                  <div className="space-y-4">
+                    {lesson.words.map((word, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                        <div className="flex-1">
+                          <p className="text-2xl font-bold text-emerald-600">{word.bisaya}</p>
+                          <p className="text-gray-800 font-medium">{word.english}</p>
+                          <p className="text-sm text-gray-500 italic">{word.pronunciation}</p>
+                        </div>
+                        <button
+                          onClick={() => playPronunciation(word)}
+                          className="bg-emerald-600 text-white p-3 rounded-full hover:bg-emerald-700 transition-all"
+                        >
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleLessonComplete(lesson.id)}
+                    className="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 transition-all"
+                    disabled={completedLessons.includes(lesson.id)}
+                  >
+                    {completedLessons.includes(lesson.id) ? '✓ Completed' : 'Mark as Complete'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Quiz Tab */}
+        {activeTab === 'quiz' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Test Your Knowledge</h2>
+            <div className="space-y-6">
+              <div className="p-4 bg-emerald-50 rounded-lg">
+                <p className="font-bold text-gray-800 mb-2">Question 1: What does "Kumusta" mean?</p>
+                <div className="space-y-2">
+                  {['Hello/How are you', 'Thank you', 'Goodbye', 'Good'].map(option => (
+                    <button
+                      key={option}
+                      onClick={() => setQuizAnswers({...quizAnswers, q1: {answer: option, correct: option === 'Hello/How are you'}})}
+                      className={`w-full p-3 rounded-lg text-left transition-all ${
+                        quizAnswers.q1?.answer === option
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-white border-2 border-gray-200 hover:border-emerald-300'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <p className="font-bold text-gray-800 mb-2">Question 2: How do you say "Thank you" in Bisaya?</p>
+                <div className="space-y-2">
+                  {['Salamat', 'Paagi', 'Marayau', 'Kumusta'].map(option => (
+                    <button
+                      key={option}
+                      onClick={() => setQuizAnswers({...quizAnswers, q2: {answer: option, correct: option === 'Salamat'}})}
+                      className={`w-full p-3 rounded-lg text-left transition-all ${
+                        quizAnswers.q2?.answer === option
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white border-2 border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleQuizSubmit}
+                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 transition-all"
+              >
+                Submit Quiz
+              </button>
+
+              {showQuizResults && (
+                <div className="p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                  <p className="font-bold text-green-800">Great job! You scored {Object.values(quizAnswers).filter(a => a.correct).length} out of 2!</p>
+                  <p className="text-sm text-green-700">+{Object.values(quizAnswers).filter(a => a.correct).length * 5} points earned</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Culture Tab */}
+        {activeTab === 'culture' && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Discover Bisaya Culture</h2>
+            {culturalFacts.map((fact, idx) => (
+              <div key={idx} className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-emerald-600 mb-3">{fact.title}</h3>
+                <p className="text-gray-700 leading-relaxed">{fact.content}</p>
+              </div>
+            ))}
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg p-6 text-white">
+              <h3 className="text-xl font-bold mb-2">🎵 Learn Through Music</h3>
+              <p className="mb-4">Coming soon: Bisaya songs with lyrics and translations!</p>
+            </div>
+          </div>
+        )}
+
+        {/* Progress Tab */}
+        {activeTab === 'progress' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Progress</h2>
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-emerald-50 p-4 rounded-lg text-center">
+                <p className="text-3xl font-bold text-emerald-600">{completedLessons.length}</p>
+                <p className="text-gray-600">Lessons Completed</p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg text-center">
+                <p className="text-3xl font-bold text-blue-600">{score}</p>
+                <p className="text-gray-600">Total Points</p>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg text-center">
+                <p className="text-3xl font-bold text-purple-600">
+                  {lessons[currentLanguage]?.length || 0}
+                </p>
+                <p className="text-gray-600">Available Lessons</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h3 className="font-bold text-gray-800">Achievements</h3>
+              {completedLessons.length > 0 && (
+                <div className="flex items-center gap-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+                  <Award className="w-8 h-8 text-yellow-600" />
+                  <div>
+                    <p className="font-bold text-gray-800">First Steps</p>
+                    <p className="text-sm text-gray-600">Complete your first lesson</p>
+                  </div>
+                </div>
+              )}
+              {score >= 50 && (
+                <div className="flex items-center gap-3 p-3 bg-emerald-50 border-2 border-emerald-300 rounded-lg">
+                  <Award className="w-8 h-8 text-emerald-600" />
+                  <div>
+                    <p className="font-bold text-gray-800">Point Master</p>
+                    <p className="text-sm text-gray-600">Earn 50 points</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SabahanLanguageApp;
