@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BahasaKu Sabah - Learn Sabahan Languages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
+    <div id="app"></div>
+
+    <script>
+        // App State
+        let state = {
+            currentLanguage: 'bisaya',
+            activeTab: 'home',
+            score: 0,
+            completedLessons: [],
+            quizAnswers: {},
+            showQuizResults: false
+        };
+
+        // Data
+        const languages = [
+            { id: 'bisaya', name: 'Bisaya', status: 'active', flag: '🟢' },
+            { id: 'kadazandusun', name: 'Kadazandusun', status: 'coming', flag: '🟡' },
+            { id: 'bajau', name: 'Bajau Samah', status: 'coming', flag: '🟡' }
+        ];
+
+        const lessons = {
+            bisaya: [
+                {
+                    id: 1,
+                    title: 'Basic Greetings',
+                    category: 'vocabulary',
+                    words: [
+                        { bisaya: 'Mohon Tuhan', english: 'Thank God', pronunciation: 'mo-hon too-han' },
+                        { bisaya: 'Kumusta', english: 'Hello/How are you', pronunciation: 'koo-mus-ta' },
+                        { bisaya: 'Marayau', english: 'Good', pronunciation: 'ma-ra-yau' },
+                        { bisaya: 'Salamat', english: 'Thank you', pronunciation: 'sa-la-mat' },
+                        { bisaya: 'Paagi', english: 'Goodbye', pronunciation: 'pa-a-gi' }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: 'Numbers 1-10',
+                    category: 'vocabulary',
+                    words: [
+                        { bisaya: 'Isa', english: 'One', pronunciation: 'i-sa' },
+                        { bisaya: 'Duwa', english: 'Two', pronunciation: 'du-wa' },
+                        { bisaya: 'Tolu', english: 'Three', pronunciation: 'to-lu' },
+                        { bisaya: 'Ompat', english: 'Four', pronunciation: 'om-pat' },
+                        { bisaya: 'Lima', english: 'Five', pronunciation: 'li-ma' }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: 'Family Members',
+                    category: 'vocabulary',
+                    words: [
+                        { bisaya: 'Ama', english: 'Father', pronunciation: 'a-ma' },
+                        { bisaya: 'Ina', english: 'Mother', pronunciation: 'i-na' },
+                        { bisaya: 'Ading', english: 'Younger sibling', pronunciation: 'a-ding' },
+                        { bisaya: 'Kaka', english: 'Older sibling', pronunciation: 'ka-ka' },
+                        { bisaya: 'Laki', english: 'Husband', pronunciation: 'la-ki' }
+                    ]
+                }
+            ]
+        };
+
+        const culturalFacts = [
+            {
+                title: 'Bisaya People',
+                content: 'The Bisaya people are indigenous to Sabah, primarily found in the Beaufort and Kuala Penyu districts. They are known for their agricultural skills and traditional brass-making crafts.'
+            },
+            {
+                title: 'Traditional Music',
+                content: 'Bisaya culture features unique musical instruments and songs that tell stories of daily life, love, and connection to the land.'
+            },
+            {
+                title: 'Language Status',
+                content: 'Bisaya is one of the indigenous languages of Sabah that needs preservation efforts as younger generations increasingly speak Malay and English.'
+            }
+        ];
+
+        // Icons (using Unicode/Emoji as substitutes)
+        const icons = {
+            globe: '🌐',
+            award: '🏆',
+            book: '📚',
+            play: '▶️',
+            heart: '❤️',
+            chart: '📊',
+            volume: '🔊'
+        };
+
+        // Helper Functions
+        function handleLessonComplete(lessonId) {
+            if (!state.completedLessons.includes(lessonId)) {
+                state.completedLessons.push(lessonId);
+                state.score += 10;
+                render();
+            }
+        }
+
+        function handleQuizSubmit() {
+            state.showQuizResults = true;
+            const correct = Object.values(state.quizAnswers).filter(a => a.correct).length;
+            state.score += correct * 5;
+            render();
+        }
+
+        function playPronunciation(word) {
+            alert(`🔊 Playing pronunciation: "${word.pronunciation}"\n\n(Audio feature will include native speaker recordings)`);
+        }
+
+        function setTab(tab) {
+            state.activeTab = tab;
+            render();
+        }
+
+        function setLanguage(langId) {
+            const lang = languages.find(l => l.id === langId);
+            if (lang && lang.status === 'active') {
+                state.currentLanguage = langId;
+                render();
+            }
+        }
+
+        function setQuizAnswer(question, answer, correct) {
+            state.quizAnswers[question] = { answer, correct };
+            render();
+        }
+
+        // Render Functions
+        function renderHeader() {
+            return `
+                <div class="bg-emerald-600 text-white p-4 shadow-lg">
+                    <div class="max-w-6xl mx-auto flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="text-4xl">${icons.globe}</span>
+                            <div>
+                                <h1 class="text-2xl font-bold">BahasaKu Sabah</h1>
+                                <p class="text-sm text-emerald-100">Learn Sabahan Languages</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2 bg-emerald-700 px-3 py-2 rounded-lg">
+                                <span>${icons.award}</span>
+                                <span class="font-bold">${state.score} pts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLanguageSelector() {
+            return `
+                <div class="bg-white shadow-md p-4">
+                    <div class="max-w-6xl mx-auto">
+                        <p class="text-sm text-gray-600 mb-2">Choose your language:</p>
+                        <div class="flex gap-3 flex-wrap">
+                            ${languages.map(lang => `
+                                <button
+                                    onclick="setLanguage('${lang.id}')"
+                                    class="px-4 py-2 rounded-lg font-medium transition-all ${
+                                        state.currentLanguage === lang.id
+                                            ? 'bg-emerald-600 text-white'
+                                            : lang.status === 'active'
+                                            ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                                            : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                                    }"
+                                    ${lang.status !== 'active' ? 'disabled' : ''}
+                                >
+                                    ${lang.flag} ${lang.name}
+                                    ${lang.status === 'coming' ? '<span class="text-xs ml-2">(Coming Soon)</span>' : ''}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderNavigation() {
+            const tabs = [
+                { id: 'home', label: 'Home', icon: icons.globe },
+                { id: 'lessons', label: 'Lessons', icon: icons.book },
+                { id: 'quiz', label: 'Quiz', icon: icons.play },
+                { id: 'culture', label: 'Culture', icon: icons.heart },
+                { id: 'progress', label: 'Progress', icon: icons.chart }
+            ];
+
+            return `
+                <div class="max-w-6xl mx-auto mt-6 px-4">
+                    <div class="flex gap-2 border-b-2 border-gray-200 overflow-x-auto">
+                        ${tabs.map(tab => `
+                            <button
+                                onclick="setTab('${tab.id}')"
+                                class="flex items-center gap-2 px-4 py-3 font-medium transition-all whitespace-nowrap ${
+                                    state.activeTab === tab.id
+                                        ? 'text-emerald-600 border-b-4 border-emerald-600'
+                                        : 'text-gray-600 hover:text-emerald-600'
+                                }"
+                            >
+                                <span>${tab.icon}</span>
+                                ${tab.label}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHome() {
+            return `
+                <div class="space-y-6 fade-in">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to BahasaKu Sabah! 🌟</h2>
+                        <p class="text-gray-600 mb-4">
+                            Start your journey learning the beautiful languages of Sabah. Begin with Bisaya and reconnect with your heritage!
+                        </p>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-emerald-50 p-4 rounded-lg">
+                                <div class="text-4xl mb-2">${icons.book}</div>
+                                <h3 class="font-bold text-gray-800">Learn Vocabulary</h3>
+                                <p class="text-sm text-gray-600">Master essential words and phrases</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="text-4xl mb-2">${icons.volume}</div>
+                                <h3 class="font-bold text-gray-800">Pronunciation</h3>
+                                <p class="text-sm text-gray-600">Hear native speaker audio</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="text-4xl mb-2">${icons.heart}</div>
+                                <h3 class="font-bold text-gray-800">Discover Culture</h3>
+                                <p class="text-sm text-gray-600">Learn about traditions and heritage</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-xl shadow-lg p-6 text-white">
+                        <h3 class="text-xl font-bold mb-2">Your Learning Path</h3>
+                        <p class="mb-4">You've completed ${state.completedLessons.length} lessons in Bisaya!</p>
+                        <button
+                            onclick="setTab('lessons')"
+                            class="bg-white text-emerald-600 px-6 py-2 rounded-lg font-medium hover:bg-emerald-50 transition-all"
+                        >
+                            Continue Learning →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLessons() {
+            const currentLessons = lessons[state.currentLanguage] || [];
+            return `
+                <div class="space-y-4 fade-in">
+                    <h2 class="text-2xl font-bold text-gray-800">Bisaya Lessons</h2>
+                    ${currentLessons.map(lesson => `
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="bg-emerald-500 text-white p-4 flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold">${lesson.title}</h3>
+                                    <p class="text-sm text-emerald-100">Lesson ${lesson.id}</p>
+                                </div>
+                                ${state.completedLessons.includes(lesson.id) ? `<span class="text-2xl">${icons.award}</span>` : ''}
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    ${lesson.words.map((word, idx) => `
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                                            <div class="flex-1">
+                                                <p class="text-2xl font-bold text-emerald-600">${word.bisaya}</p>
+                                                <p class="text-gray-800 font-medium">${word.english}</p>
+                                                <p class="text-sm text-gray-500 italic">${word.pronunciation}</p>
+                                            </div>
+                                            <button
+                                                onclick='playPronunciation(${JSON.stringify(word)})'
+                                                class="bg-emerald-600 text-white p-3 rounded-full hover:bg-emerald-700 transition-all text-xl"
+                                            >
+                                                ${icons.volume}
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <button
+                                    onclick="handleLessonComplete(${lesson.id})"
+                                    class="mt-6 w-full bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 transition-all ${
+                                        state.completedLessons.includes(lesson.id) ? 'opacity-50 cursor-not-allowed' : ''
+                                    }"
+                                    ${state.completedLessons.includes(lesson.id) ? 'disabled' : ''}
+                                >
+                                    ${state.completedLessons.includes(lesson.id) ? '✓ Completed' : 'Mark as Complete'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderQuiz() {
+            return `
+                <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Test Your Knowledge</h2>
+                    <div class="space-y-6">
+                        <div class="p-4 bg-emerald-50 rounded-lg">
+                            <p class="font-bold text-gray-800 mb-2">Question 1: What does "Kumusta" mean?</p>
+                            <div class="space-y-2">
+                                ${['Hello/How are you', 'Thank you', 'Goodbye', 'Good'].map(option => `
+                                    <button
+                                        onclick="setQuizAnswer('q1', '${option}', ${option === 'Hello/How are you'})"
+                                        class="w-full p-3 rounded-lg text-left transition-all ${
+                                            state.quizAnswers.q1?.answer === option
+                                                ? 'bg-emerald-600 text-white'
+                                                : 'bg-white border-2 border-gray-200 hover:border-emerald-300'
+                                        }"
+                                    >
+                                        ${option}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <p class="font-bold text-gray-800 mb-2">Question 2: How do you say "Thank you" in Bisaya?</p>
+                            <div class="space-y-2">
+                                ${['Salamat', 'Paagi', 'Marayau', 'Kumusta'].map(option => `
+                                    <button
+                                        onclick="setQuizAnswer('q2', '${option}', ${option === 'Salamat'})"
+                                        class="w-full p-3 rounded-lg text-left transition-all ${
+                                            state.quizAnswers.q2?.answer === option
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-white border-2 border-gray-200 hover:border-blue-300'
+                                        }"
+                                    >
+                                        ${option}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <button
+                            onclick="handleQuizSubmit()"
+                            class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 transition-all"
+                        >
+                            Submit Quiz
+                        </button>
+
+                        ${state.showQuizResults ? `
+                            <div class="p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                                <p class="font-bold text-green-800">Great job! You scored ${Object.values(state.quizAnswers).filter(a => a.correct).length} out of 2!</p>
+                                <p class="text-sm text-green-700">+${Object.values(state.quizAnswers).filter(a => a.correct).length * 5} points earned</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCulture() {
+            return `
+                <div class="space-y-4 fade-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Discover Bisaya Culture</h2>
+                    ${culturalFacts.map(fact => `
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-xl font-bold text-emerald-600 mb-3">${fact.title}</h3>
+                            <p class="text-gray-700 leading-relaxed">${fact.content}</p>
+                        </div>
+                    `).join('')}
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg p-6 text-white">
+                        <h3 class="text-xl font-bold mb-2">🎵 Learn Through Music</h3>
+                        <p class="mb-4">Coming soon: Bisaya songs with lyrics and translations!</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProgress() {
+            const currentLessons = lessons[state.currentLanguage] || [];
+            return `
+                <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Progress</h2>
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-emerald-50 p-4 rounded-lg text-center">
+                            <p class="text-3xl font-bold text-emerald-600">${state.completedLessons.length}</p>
+                            <p class="text-gray-600">Lessons Completed</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg text-center">
+                            <p class="text-3xl font-bold text-blue-600">${state.score}</p>
+                            <p class="text-gray-600">Total Points</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg text-center">
+                            <p class="text-3xl font-bold text-purple-600">${currentLessons.length}</p>
+                            <p class="text-gray-600">Available Lessons</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-gray-800">Achievements</h3>
+                        ${state.completedLessons.length > 0 ? `
+                            <div class="flex items-center gap-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+                                <span class="text-3xl">${icons.award}</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">First Steps</p>
+                                    <p class="text-sm text-gray-600">Complete your first lesson</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${state.score >= 50 ? `
+                            <div class="flex items-center gap-3 p-3 bg-emerald-50 border-2 border-emerald-300 rounded-lg">
+                                <span class="text-3xl">${icons.award}</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Point Master</p>
+                                    <p class="text-sm text-gray-600">Earn 50 points</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const content = {
+                home: renderHome(),
+                lessons: renderLessons(),
+                quiz: renderQuiz(),
+                culture: renderCulture(),
+                progress: renderProgress()
+            };
+
+            document.getElementById('app').innerHTML = `
+                ${renderHeader()}
+                ${renderLanguageSelector()}
+                ${renderNavigation()}
+                <div class="max-w-6xl mx-auto p-4 mt-4">
+                    ${content[state.activeTab]}
+                </div>
+            `;
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
